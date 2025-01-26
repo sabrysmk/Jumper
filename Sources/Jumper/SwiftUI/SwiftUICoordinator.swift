@@ -1,4 +1,3 @@
-// Copyright (c) 2024 iDevs.io. All rights reserved.
 
 import SwiftUI
 
