@@ -2,34 +2,78 @@
 
 import SwiftUI
 
-public class AuthCoordinator: SwiftUICoordinator {
-    @Published private var isAuthenticated = false
+/// Coordinator that manages authentication flow using modal presentations
+/// Features:
+/// - Modal presentations
+/// - Sheets and full-screen covers
+/// - Authentication state management
+final class AuthCoordinator: ModalCoordinator {
     
-    public override func makeRootView() -> AnyView {
-        AnyView(
-            Group {
-                if isAuthenticated {
-                    HomeScreen(onLogout: { [weak self] in
-                        self?.isAuthenticated = false
-                    }).makeView()
-                } else {
-                    LoginScreen(
-                        onLogin: { [weak self] in
-                            self?.isAuthenticated = true
-                        },
-                        onForgotPassword: { [weak self] in
-                            self?.showForgotPassword()
-                        }
-                    ).makeView()
-                }
+    // MARK: - Public Properties
+    
+    var onAuthenticated: () -> Void = {}
+    
+    // MARK: - Private Properties
+    
+    private enum Sheet: Identifiable {
+        case forgotPassword
+        case registration
+        case termsAndConditions
+        
+        var id: String {
+            switch self {
+            case .forgotPassword: return "forgotPassword"
+            case .registration: return "registration"
+            case .termsAndConditions: return "terms"
             }
-        )
+        }
     }
     
-    private func showForgotPassword() {
-        let screen = ForgotPasswordScreen { [weak self] in
-            self?.dismiss()
-        }
-        present(screen)
+    // MARK: - Root View
+    
+    override func makeRootView() -> AnyView {
+        AnyView(LoginView(
+            onLoginTap: { [weak self] in
+                self?.onAuthenticated()
+            },
+            onForgotPasswordTap: { [weak self] in
+                self?.presentSheet(.forgotPassword)
+            },
+            onRegisterTap: { [weak self] in
+                self?.presentSheet(.registration)
+            }
+        ))
     }
-} 
+    
+    // MARK: - Navigation
+    
+    private func presentSheet(_ sheet: Sheet) {
+        switch sheet {
+        case .forgotPassword:
+            let screen = ForgotPasswordScreen(onSendEmail: { [weak self] in
+                self?.dismiss()
+            })
+            present(screen)
+            
+        case .registration:
+            let screen = RegistrationScreen(
+                onClose: { [weak self] in
+                    self?.dismiss()
+                },
+                onTermsTap: { [weak self] in
+                    self?.presentSheet(.termsAndConditions)
+                }
+            )
+            present(screen)
+            
+        case .termsAndConditions:
+            let screen = TermsScreen(onClose: { [weak self] in
+                self?.dismiss()
+            })
+            present(screen)
+        }
+    }
+}
+
+
+

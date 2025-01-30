@@ -2,8 +2,53 @@
 
 import SwiftUI
 
-/// A protocol that defines a presentable screen in SwiftUI.
-/// This is the core protocol for all screens in the SwiftUI version of Jumper.
+/// A protocol that defines a screen in the navigation system
+///
+/// Use this protocol to define screens that can be presented in your application.
+/// Each screen has a unique identifier and presentation style.
+///
+/// Example of a basic screen:
+/// ```swift
+/// struct ProfileScreen: JumperScreen {
+///     let userId: String
+///     
+///     var body: some View {
+///         Text("Profile for user: \(userId)")
+///     }
+/// }
+/// ```
+///
+/// Example of a screen with custom presentation style:
+/// ```swift
+/// struct SettingsScreen: JumperScreen {
+///     var presentationStyle: PresentationStyle {
+///         .modal
+///     }
+///     
+///     var body: some View {
+///         NavigationView {
+///             List {
+///                 Text("Settings")
+///             }
+///         }
+///     }
+/// }
+/// ```
+///
+/// Example of a screen with state persistence:
+/// ```swift
+/// struct EditProfileScreen: JumperScreen, StatePersistable {
+///     static var stateIdentifier: String { "edit-profile" }
+///     
+///     @State private var name: String = ""
+///     
+///     var body: some View {
+///         Form {
+///             TextField("Name", text: $name)
+///         }
+///     }
+/// }
+/// ```
 public protocol JumperScreen: Identifiable, Hashable {
     /// The type of view that this screen presents
     associatedtype Content: View
@@ -40,10 +85,15 @@ public enum JumperPresentationStyle {
     case automatic
     /// Present as a push navigation
     case push
-    /// Present modally
+    /// Present modally (similar to sheet)
     case modal
     /// Present as a full screen cover
     case fullScreen
-    /// Present as a sheet
+    /// Present as a sheet from bottom
     case sheet
+    
+    /// The default presentation style
+    public static var `default`: JumperPresentationStyle {
+        .automatic
+    }
 } 

@@ -2,8 +2,14 @@
 
 import SwiftUI
 
+/// Main application entry point that demonstrates the Jumper navigation framework
+/// This example shows how to:
+/// - Set up tab-based navigation
+/// - Handle authentication flow
+/// - Implement deep linking
+/// - Manage application state
 public struct ExampleApp: View {
-    @StateObject private var coordinator = AuthCoordinator()
+    @StateObject private var coordinator = MainCoordinator()
     
     public init() {}
     

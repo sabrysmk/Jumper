@@ -2,24 +2,37 @@
 
 import SwiftUI
 
-public struct HomeScreen: JumperScreen {
-    public let id = UUID()
-    private let onLogout: () -> Void
+/// Home screen that demonstrates stack-based navigation
+/// Features:
+/// - Push/pop navigation
+/// - Nested navigation stack
+/// - Deep linking support
+struct HomeScreen: JumperScreen {
+    let id = UUID()
+    let onPostTap: (String) -> Void
+    let onUserTap: (String) -> Void
     
-    public init(onLogout: @escaping () -> Void) {
-        self.onLogout = onLogout
+    func makeView() -> some View {
+        HomeFeedView(
+            onPostTap: onPostTap,
+            onUserTap: onUserTap
+        )
     }
-    
-    public func makeView() -> some View {
-        VStack(spacing: 20) {
-            Text("Home Screen")
-                .font(.title)
-            
-            Button("Logout") {
-                onLogout()
-            }
-            .buttonStyle(.borderedProminent)
-        }
-        .padding()
+}
+
+/// Coordinator that manages navigation within the Home tab
+final class HomeCoordinator: StackCoordinator {
+    override func makeRootView() -> AnyView {
+        AnyView(
+            HomeScreen(
+                onPostTap: { [weak self] postId in
+                    self?.push(PostDetailsScreen(postId: postId))
+                },
+                onUserTap: { [weak self] userId in
+                    self?.push(UserProfileScreen(userId: userId))
+                }
+            ).makeView()
+        )
     }
-} 
+}
+
